@@ -66,15 +66,10 @@ N.B: If the structure is not respected, the behavior of ArgoCD will not be as ex
 
 ### Creation
 
-Vos applications doivent etre creees dans des sous-dossiers portant le nom de l'application comme explique plus haut. Par exemple `adobe-datasource`. Pas besoin de prefixer avec `quanti`, ce prefix est ajoute automatiquement par le process de creation automatique. Un suffixe sera egalement ajoute automatiquement en fonction du dossier dans lequel vous creez votre application (voir plus haut).
-
-Pour creer une application de type helm, il y a plusieurs methodes mais l'approche recommandee est d'utiliser une umbrella chart
-
 
 Your applications must be created in subfolders bearing the application name as explained above. For example `api`.
 
 To create a helm type application, there are several methods but the recommended approach is to use an umbrella chart
-
 
 Here is an example of a `Chart.yaml` file to create an umbrella chart for an api connector:
 ```yaml
@@ -88,14 +83,6 @@ dependencies:
     version: 0.1.0
     repository: oci://europe-west9-docker.pkg.dev/example/charts
 ```
-
-Il est important d'accompagner le fichier `Chart.yaml` d'un autre fichier `values.yaml` de maniere a override les parametres d'origine.
-
-Dans votre fichier `values.yaml` vous pouvez specifier les valeurs que vous souhaiter pour personnaliser votre installation.
-
-Pour gerer les updates automatiques via ArgoCD ImageUpdater, il faut egalement accompagner votre application d'un fichier supplementaire `.argocd-source-<appName>.yaml`. Ici, `<appName>` doit correspondre au nom final de votre application ArgoCD. Voici un exemple pour l'application `adobe-datasource`:
-
-
 
 It is important to accompany the `Chart.yaml` file with another `values.yaml` file so as to override the original settings.
 
