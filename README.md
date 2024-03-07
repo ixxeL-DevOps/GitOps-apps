@@ -60,7 +60,11 @@ Real example:
             └── istio-certificates
                 └── certs.yaml
 ```
-N.B: If the structure is not respected, the behavior of ArgoCD will not be as expected. Either the application is not created, or side effects will be observed.
+
+> [!WARNING]
+> 
+> N.B: If the structure is not respected, the behavior of ArgoCD will not be as expected. Either the application is not created, or side effects will be observed.
+> 
 
 ## Applications
 
@@ -112,12 +116,12 @@ api/
 └── values.yaml
 ```
 
-/!\ An important thing to take into consideration for the `values.yaml`!!
-
-This approach is an `umbrella chart` approach. This technique only defines dependencies in the `Chart.yaml`.
-It is therefore necessary to adapt the `values.yaml` file compared to a classic helm installation.
-
-You must indicate all the parameters of your application under the key corresponding to the dependency to which these keys belong.
+> [!IMPORTANT]
+> An important thing to take into consideration for the `values.yaml`!!
+> This approach is an `umbrella chart` approach. This technique only defines dependencies in the `Chart.yaml`.
+> It is therefore necessary to adapt the `values.yaml` file compared to a classic helm installation.
+>+ You must indicate all the parameters of your application under the key corresponding to the dependency to which these keys belong.
+>
 
 Example:
 
