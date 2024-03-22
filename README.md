@@ -133,3 +133,47 @@ connectors:
 ```
 
 Here all the values in `values.yaml` are under the `connectors` key which refers to the name of my dependency in my `Chart.yaml` file.
+
+## Vcluster
+
+Vcluster is a very useful tool to create nested clusters. This structure allow dynamic creation of vclusters.
+
+### Structure
+The structural pattern of folders is as follows:
+
+- `<physical-cluster>/ephemeral/<vclusterName>/cluster/config.json`
+- `<physical-cluster>/ephemeral/<vclusterName>/apps/<namespace>/<appName>`
+
+```bash
+.
+└── <physical-cluster>
+    └── ephemeral
+        ├── <vclusterName>
+        │   ├── apps
+        │   │   └── <namespace>
+        │   │       └── <appName>
+        │   │           ├── Chart.yaml
+        │   │           └── values.yaml
+        │   └── cluster
+        │       └── config.json
+        └── <vclusterName>
+            ├── apps
+            └── cluster
+                └── config.json
+```
+
+### Cluster creation
+
+The `cluster/config.json` file allow vcluster dynamic creation. You only need to specify the image version inside the `config.json`:
+
+```json
+{
+    "image":"rancher/k3s:v1.29.0-k3s1"
+}
+```
+
+The cluster will be automatically created.
+
+### Application creation
+
+The `apps/<namespace>/<appName>` directory allow vcluster application dynamic creation. You only need to put either umbrella chart or plain YAML manifests to auto create application in the vcluster.
