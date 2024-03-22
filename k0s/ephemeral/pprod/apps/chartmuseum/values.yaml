@@ -1,0 +1,26 @@
+chartmuseum:
+  env:
+    open:
+      STORAGE: local
+      DISABLE_API: false
+      AUTH_ANONYMOUS_GET: true
+      DEBUG: false
+      ALLOW_OVERWRITE: false
+      DEPTH: 0
+  persistence:
+    enabled: false
+    acessmode: ReadWriteMany
+    size: 10Gi
+    path: /storage
+  ingress:
+    enabled: false
+    pathType: "ImplementationSpecific"
+    annotations:
+      cert-manager.io/cluster-issuer: vault-issuer
+      cert-manager.io/common-name: chartmuseum.k8s-app.fredcorp.com
+    hosts:
+      - name: chartmuseum.k8s-app.fredcorp.com
+        path: /
+        tls: true
+        tlsSecret: chartmuseum-tls-cert
+    ingressClassName: nginx
