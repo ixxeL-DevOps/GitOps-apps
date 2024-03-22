@@ -13,13 +13,13 @@ chartmuseum:
     size: 10Gi
     path: /storage
   ingress:
-    enabled: false
+    enabled: true
     pathType: "ImplementationSpecific"
     annotations:
       cert-manager.io/cluster-issuer: vault-issuer
       cert-manager.io/common-name: chartmuseum.k8s-app.fredcorp.com
     hosts:
-      - name: chartmuseum.k8s-app.fredcorp.com
+      - name: chartmuseum-vk.k8s-app.fredcorp.com
         path: /
         tls: true
         tlsSecret: chartmuseum-tls-cert
