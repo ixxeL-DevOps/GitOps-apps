@@ -1,8 +1,8 @@
 helm:
   parameters:
-  - name: demo-web.image.name
+  - name: image.name
     value: docker.io/ixxel/demo-web
     forcestring: true
   - name: demo-web.image.tag
-    value: v0.2.0
+    value: v0.3.0
     forcestring: true
