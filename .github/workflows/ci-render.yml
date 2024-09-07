@@ -1,0 +1,28 @@
+---
+name: Commit Workflow
+on:
+  push:
+    branches:
+    - main
+
+permissions: 
+  contents: write
+  pull-requests: write # Optional, depending on your workflow
+
+jobs:
+  render-manifests:
+    name: Render and Commit Manifests
+    timeout-minutes: 5
+    runs-on: self-hosted
+    strategy:
+      matrix:
+        targetBranch:
+        - deploy/dev
+        - deploy/stage
+        - deploy/prod
+    steps:
+    - name: Render and Commit Manifests
+      uses: akuity/kargo-render-action@v0.1.0-rc.40
+      with:
+        personalAccessToken: ${{ secrets.SUPER_ADMIN_TOKEN }}
+        targetBranch: ${{ matrix.targetBranch }}
