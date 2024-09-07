@@ -1,0 +1,33 @@
+demo-web:
+  fullnameOverride: 'demo-web'
+  image:
+    registry: docker.io
+    repository: ixxel/demo-web
+  rollouts:
+    enabled: true
+  gatewayApi:
+    enabled: true
+    gateway:
+      name: wildcard-tls-gateway
+      namespace: kube-system
+      section: https
+    httpRoute:
+      hosts:
+      - demo-web-prod.k8s-app.gateway.fredcorp.com
+      pathType: PathPrefix
+      path: /
+  # ingress:
+  #   enabled: true
+  #   className: "cilium"
+  #   annotations:
+  #     cert-manager.io/cluster-issuer: vault-issuer
+  #     cert-manager.io/common-name: 'demo-web.k8s-app.fredcorp.com'
+  #   hosts:
+  #     - host: 'demo-web.k8s-app.fredcorp.com'
+  #       paths:
+  #         - path: /
+  #           pathType: Prefix
+  autoscaling:
+    enabled: true
+  test: 
+    enabled: false
