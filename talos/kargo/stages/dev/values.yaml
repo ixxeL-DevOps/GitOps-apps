@@ -14,7 +14,7 @@ demo-web:
       section: https
     httpRoute:
       hosts:
-      - demo-web-dev.k8s-app.gateway.fredcorp.com
+      - demo-web-test.k8s-app.gateway.fredcorp.com
       pathType: PathPrefix
       path: /
   # ingress:
