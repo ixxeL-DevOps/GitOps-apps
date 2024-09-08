@@ -4,5 +4,5 @@ helm:
     value: docker.io/ixxel/demo-web
     forcestring: true
   - name: demo-web.image.tag
-    value: v0.7.0
+    value: v0.8.0
     forcestring: true
