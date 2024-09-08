@@ -1,13 +1,14 @@
 ---
-name: Image Updater Auto-PR
+name: Promote image to production
 on:
-  create:
+  workflow_dispatch:
+  push:
     branches:
-    - 'auto/*'
+    - 'auto/**'
 
 jobs:
   auto-pull-request:
-    name: Automatically open PR to main
+    name: Promote image to prod
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
