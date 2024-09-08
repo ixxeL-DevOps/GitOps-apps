@@ -9,6 +9,16 @@
         "matchDatasources": ["helm"],
         "matchDepTypes": ["helm"],
         "enabled": true
+      },
+      {
+        "description": "Automerge for vk-dev and vk-uat",
+        "matchFileNames": [
+            "envs/vk-dev/namespaces/.+/apps/.+/Chart\\.yaml$",
+            "envs/vk-uat/namespaces/.+/apps/.+/Chart\\.yaml$"
+        ],
+        "automerge": true,
+        "automergeType": "pr",
+        "requiredStatusChecks": null
       }
     ],
     "helm-requirements": {
