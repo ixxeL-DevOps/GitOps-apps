@@ -1,0 +1,24 @@
+---
+name: Image Updater Auto-PR
+on:
+  create:
+    branches:
+    - 'auto/*'
+
+jobs:
+  auto-pull-request:
+    name: Automatically open PR to main
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      name: checkout
+
+    - uses: repo-sync/pull-request@v2
+      name: pull-request
+      with:
+        destination_branch: "main"
+        pr_title: "chore: image promotion ${{ github.ref }} into main"
+        pr_body: ":crown: *An automated PR* - ${{ github.ref }}"
+        pr_reviewer: "ixxeL2097"
+        pr_draft: false
+        github_token: ${{ secrets.SUPER_ADMIN_TOKEN }}
