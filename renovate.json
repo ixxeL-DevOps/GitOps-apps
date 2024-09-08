@@ -5,10 +5,30 @@
     ],
     "packageRules": [
       {
+        "description": "Automerge for vk-dev and vk-uat",
         "matchManagers": ["helm-requirements"],
         "matchDatasources": ["helm"],
         "matchDepTypes": ["helm"],
-        "enabled": true
+        "enabled": true,
+        "matchFileNames": [
+            "envs/vk-dev/**",
+            "envs/vk-uat/**"
+        ],
+        "automerge": true,
+        "automergeType": "pr",
+        "platformAutomerge": true,
+        "requiredStatusChecks": null
+      },
+      {
+        "description": "Manual merge for prod",
+        "matchManagers": ["helm-requirements"],
+        "matchDatasources": ["helm"],
+        "matchDepTypes": ["helm"],
+        "enabled": true,
+        "matchFileNames": [
+            "envs/talos/**"
+        ],
+        "automerge": false
       }
     ],
     "helm-requirements": {
