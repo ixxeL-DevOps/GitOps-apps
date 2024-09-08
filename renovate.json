@@ -6,9 +6,6 @@
     "packageRules": [
       {
         "description": "Automerge for vk-dev and vk-uat",
-        "matchManagers": ["helm-requirements"],
-        "matchDatasources": ["helm"],
-        "matchDepTypes": ["helm"],
         "enabled": true,
         "matchFileNames": [
             "envs/vk-dev/**",
@@ -21,9 +18,6 @@
       },
       {
         "description": "Manual merge for prod",
-        "matchManagers": ["helm-requirements"],
-        "matchDatasources": ["helm"],
-        "matchDepTypes": ["helm"],
         "enabled": true,
         "matchFileNames": [
             "envs/talos/**"
@@ -31,9 +25,6 @@
         "automerge": false
       }
     ],
-    "helm-requirements": {
-      "fileMatch": ["envs/.+/namespaces/.+/apps/.+/Chart\\.yaml$"]
-    },
     "ignoreDeps": [],
     "separateMajorMinor": true,
     "separateMinorPatch": true,
