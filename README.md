@@ -7,6 +7,53 @@ This repository is the ArgoCD application repository. It is used by developers a
 
 The structural pattern of folders is as follows:
 
+- `envs/<env-name>/namespaces/<namespace-name>/apps/<application-name>`
+
+```bash
+.
+└── envs
+    └── <env-name-A>
+         └── namespaces
+             ├── <namespace-name-A>
+             │    └── apps
+             │        ├── <application-name-A>
+             │        └── <application-name-B>
+             └── <namespace-name-B>
+                  └── apps
+                      └── <application-name-C>
+```
+
+This structure works for any type of `helm chart` and will be coupled to `ArgoCD ImageUpdater` respecting the imposed structure. It is extremely important to be rigorous about naming because all automation is based on it.
+
+- `<env-name>`: Will determinate name of the environment/cluster and is coupled with ArgoCD cluster name. Do not modify the name of this folder, this is a core ArgoCD parameter for creating applications.
+- `<namespace-name>`: This section is important to send your application in the correct kubernetes namespace.
+- `<application-name>`: This information will determine the name of your application in ArgoCD and in the cluster. It also determine the name of the Helm chart that will be used.
+
+The framework also accepts `plain YAML` deployments. 
+
+Real example:
+
+```bash
+.
+└── envs
+    ├── k0s
+    └── talos
+        └── namespaces
+            ├── demo
+            │   └── apps
+            │       └── demo-web
+            │           ├── .argocd-source-api.yaml
+            │           ├── Chart.yaml
+            │           └── values.yaml
+            └── istio-system
+                └── apps
+                    └── istio-certificates
+                        └── certs.yaml
+```
+
+<details>
+  <summary>Old structure !</summary>
+
 - `<cluster>/<namespace>/<chart-name>/<application-name>`
 
 ```bash
@@ -60,6 +107,8 @@ Real example:
             └── istio-certificates
                 └── certs.yaml
 ```
+</details>
+
 
 > [!WARNING]
 > 
@@ -92,7 +141,7 @@ It is important to accompany the `Chart.yaml` file with another `values.yaml` fi
 
 In your `values.yaml` file you can specify the values you want to personalize your installation.
 
-To manage automatic updates via ArgoCD ImageUpdater, you must also accompany your application with an additional file `.argocd-source-<appName>.yaml`. Here, `<appName>` should match the final name of your ArgoCD application. Here is an example for the `api` application:
+To manage automatic updates via **ArgoCD ImageUpdater**, you must also accompany your application with an additional file `.argocd-source-<appName>.yaml`. Here, `<appName>` should match the final name of your ArgoCD application. Here is an example for the `api` application:
 
 
 File `.argocd-source-api.yaml` :
@@ -141,39 +190,30 @@ Vcluster is a very useful tool to create nested clusters. This structure allow d
 ### Structure
 The structural pattern of folders is as follows:
 
-- `<physical-cluster>/ephemeral/<vclusterName>/cluster/config.json`
-- `<physical-cluster>/ephemeral/<vclusterName>/apps/<namespace>/<appName>`
+- `envs/<env-name>/vcluster/<vclusterName>/config/config.json`
 
 ```bash
 .
-└── <physical-cluster>
-    └── ephemeral
-        ├── <vclusterName>
-        │   ├── apps
-        │   │   └── <namespace>
-        │   │       └── <appName>
-        │   │           ├── Chart.yaml
-        │   │           └── values.yaml
-        │   └── cluster
-        │       └── config.json
-        └── <vclusterName>
-            ├── apps
-            └── cluster
-                └── config.json
+└── envs
+    └── <env-name-A>
+         ├── namespaces
+         └── vcluster
+              ├── <vclusterName-A>
+              │    └── config
+              │         └── config.json
+              └── <vclusterName-B>
+                   └── config
+                        └── config.json
 ```
 
 ### Cluster creation
 
-The `cluster/config.json` file allow vcluster dynamic creation. You only need to specify the image version inside the `config.json`:
+The `config/config.json` file allow vcluster dynamic creation. You only need to specify the image version inside the `config.json`:
 
 ```json
 {
-    "image":"rancher/k3s:v1.29.0-k3s1"
+    "tag": "v1.30.2-k3s1"
 }
 ```
 
 The cluster will be automatically created.
-
-### Application creation
-
-The `apps/<namespace>/<appName>` directory allow vcluster application dynamic creation. You only need to put either umbrella chart or plain YAML manifests to auto create application in the vcluster.
