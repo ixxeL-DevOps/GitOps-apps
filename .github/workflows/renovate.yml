@@ -1,13 +1,13 @@
+---
 name: Renovate Self-Hosted
-
 on:
-  workflow_dispatch: # Permet de lancer manuellement
+  workflow_dispatch:
   schedule:
-    - cron: "0 2 * * 1" # Lancer tous les lundis à 2h du matin (UTC)
+    - cron: "0 2 * * 1"
 
 jobs:
   renovate:
-    runs-on: self-hosted # Utilise un runner self-hosted
+    runs-on: self-hosted
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -15,7 +15,7 @@ jobs:
       - name: Run Renovate
         uses: renovatebot/github-action@v40.2.7
         with:
-          configurationFile: renovate.json # Utiliser le fichier de config à la racine
+          configurationFile: renovate.json
           token: ${{ secrets.SUPER_ADMIN_TOKEN }}
           docker-volumes: |
             ${{ github.workspace }}/.npmrc:/github-action/.npmrc

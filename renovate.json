@@ -12,7 +12,7 @@
       }
     ],
     "helm-requirements": {
-      "fileMatch": ["envs/talos/.+/Chart\\.yaml$"]
+      "fileMatch": ["envs/.+/namespaces/.+/apps/.+/Chart\\.yaml$"]
     },
     "ignoreDeps": [],
     "separateMajorMinor": true,
@@ -27,5 +27,6 @@
         "password": "${HELM_PASSWORD}",
         "insecureRegistry": true
       }
-    ]
+    ],
+    "additionalBranchPrefix": "{{{ replace '.*envs/(.+)/namespaces/(.+)/apps/(.+).*' '$1-$3' packageFileDir}}}/"
   }
