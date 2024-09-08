@@ -1,9 +1,12 @@
 ---
-name: Renovate Self-Hosted
+name: Renovate check
 on:
   workflow_dispatch:
+  repository_dispatch:
+    types:
+    - renovate
   schedule:
-    - cron: "0 2 * * 1"
+  - cron: "0 2 * * 1"
 
 jobs:
   renovate:

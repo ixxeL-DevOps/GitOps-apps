@@ -1,9 +1,10 @@
 ---
 name: Promote image to production
 on:
-  create:
+  workflow_dispatch:
+  push:
     branches:
-    - 'auto/*'
+    - 'auto/**'
 
 jobs:
   auto-pull-request:
