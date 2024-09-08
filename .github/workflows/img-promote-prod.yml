@@ -4,11 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - 'auto/**'
-# on:
-#   create:
-#     branches:
-#     - 'auto/*'
+    - 'auto/**'
 
 jobs:
   auto-pull-request:
