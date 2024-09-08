@@ -9,6 +9,16 @@
         "matchDatasources": ["helm"],
         "matchDepTypes": ["helm"],
         "enabled": true
+      },
+      {
+        "description": "Automerge for vk-dev and vk-uat",
+        "matchPaths": [
+          "envs/talos/vk-dev/**",
+          "envs/talos/vk-uat/**"
+        ],
+        "automerge": true,
+        "automergeType": "pr",
+        "requiredStatusChecks": null
       }
     ],
     "helm-requirements": {
