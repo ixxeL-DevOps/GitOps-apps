@@ -10,13 +10,16 @@ permissions:
   pull-requests: write # Optional, depending on your workflow
 
 jobs:
-  render-manifests:
-    name: Render and Commit Manifests
+  helm-promotion:
+    name: Promote Helm chart to next environment
     timeout-minutes: 5
     runs-on: self-hosted
     steps:
     - uses: actions/checkout@v4
       name: checkout
+    - run: |
+        echo "helm chart version : ${{ github.event.client_payload.helm_chart_version }}"
+        echo "app version : ${{ github.event.client_payload.app_version }}"
     # - name: Trigger Repository Dispatch for ArgoCD Application Deployment
     #   run: |
     #     curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
