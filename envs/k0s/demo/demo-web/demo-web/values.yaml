@@ -1,5 +1,0 @@
-demo-web:
-  name: demo-web
-  tag: latest
-  test: 
-    enabled: false
