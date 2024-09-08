@@ -12,7 +12,7 @@
       }
     ],
     "helm-requirements": {
-      "fileMatch": ["envs/talos/.+/Chart\\.yaml$"]
+      "fileMatch": ["envs/talos/namespaces/.+/apps/.+/Chart\\.yaml$"]
     },
     "ignoreDeps": [],
     "separateMajorMinor": true,
@@ -27,5 +27,9 @@
         "password": "${HELM_PASSWORD}",
         "insecureRegistry": true
       }
-    ]
+    ],
+    "commitMessageTopic": "helm release {{depName}}",
+    "commitMessageExtra": "to {{#if isMajor}}v{{{newMajor}}}{{else}}{{#if isSingleVersion}}v{{{newVersion}}}{{else}}{{{newValue}}}{{/if}}{{/if}}",
+    "prTitle": "chore(deps): update helm release {{depName}} to {{#if isMajor}}v{{{newMajor}}}{{else}}{{#if isSingleVersion}}v{{{newVersion}}}{{else}}{{{newValue}}}{{/if}}{{/if}} in {{replace 'envs/([^/]+)/namespaces/([^/]+)/apps/([^/]+)/.*' '$1/$2/$3' packageFileDir}}",
+    "prBodyTemplate": "This PR updates the Helm release {{depName}} to version {{#if isMajor}}v{{{newMajor}}}{{else}}{{#if isSingleVersion}}v{{{newVersion}}}{{else}}{{{newValue}}}{{/if}}{{/if}}.\n\nEnvironment: {{replace 'envs/([^/]+)/.*' '$1' packageFileDir}}\nNamespace: {{replace 'envs/[^/]+/namespaces/([^/]+)/.*' '$1' packageFileDir}}\nApplication: {{replace 'envs/[^/]+/namespaces/[^/]+/apps/([^/]+)/.*' '$1' packageFileDir}}\n\n{{#if releaseNotes}}\n### Release Notes\n\n{{releaseNotes}}\n{{/if}}\n\n{{#if prBodyNotes}}\n{{{prBodyNotes}}}\n{{/if}}"
   }
