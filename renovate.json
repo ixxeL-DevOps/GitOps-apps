@@ -1,0 +1,33 @@
+{
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "extends": [
+      "config:base"
+    ],
+    "packageRules": [
+      {
+        "matchManagers": ["helm-requirements"],
+        "matchDatasources": ["helm"],
+        "matchDepTypes": ["helm"],
+        "enabled": true
+      }
+    ],
+    "helm-requirements": {
+      "fileMatch": ["envs/.+/namespaces/.+/apps/.+/Chart\\.yaml$"]
+    },
+    "ignoreDeps": [],
+    "separateMajorMinor": true,
+    "separateMinorPatch": true,
+    "prHourlyLimit": 0,
+    "prConcurrentLimit": 0,
+    "branchConcurrentLimit": 0,
+    "hostRules": [
+      {
+        "matchHost": "chartmuseum.k8s-app.fredcorp.com",
+        "username": "${HELM_USERNAME}",
+        "password": "${HELM_PASSWORD}",
+        "insecureRegistry": true
+      }
+    ],
+    "commitMessage": "{{{commitMessagePrefix}}} {{{commitMessageAction}}} {{{commitMessageTopic}}} {{{commitMessageExtra}}} {{{commitMessageSuffix}}} for env {{{ replace '.*envs/(.+)/namespaces/(.+)/apps/(.+).*' '$1' packageFileDir}}} application name {{{ replace '.*envs/(.+)/namespaces/(.+)/apps/(.+).*' '$3' packageFileDir}}}",
+    "additionalBranchPrefix": "{{{ replace '.*envs/(.+)/namespaces/(.+)/apps/(.+).*' '$1/$2/$3' packageFileDir}}}/"
+  }

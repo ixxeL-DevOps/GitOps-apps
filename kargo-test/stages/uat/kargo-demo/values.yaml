@@ -3,7 +3,7 @@ demo-web:
   image:
     registry: docker.io
     repository: ixxel/demo-web
-    tag: 'v0.9.0'
+    tag: 'v0.10.0'
   rollouts:
     enabled: false
   gatewayApi:
