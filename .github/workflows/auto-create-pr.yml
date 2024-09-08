@@ -3,7 +3,7 @@ name: Image Updater Auto-PR
 on:
   create:
     branches:
-    - 'auto-update/*'
+    - 'auto/*'
 
 jobs:
   auto-pull-request:
