@@ -1,0 +1,31 @@
+{
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "extends": [
+      "config:base"
+    ],
+    "packageRules": [
+      {
+        "matchManagers": ["helm-requirements"],
+        "matchDatasources": ["helm"],
+        "matchDepTypes": ["helm"],
+        "enabled": true
+      }
+    ],
+    "helm-requirements": {
+      "fileMatch": ["envs/talos/.+/Chart\\.yaml$"]
+    },
+    "ignoreDeps": [],
+    "separateMajorMinor": true,
+    "separateMinorPatch": true,
+    "prHourlyLimit": 0,
+    "prConcurrentLimit": 0,
+    "branchConcurrentLimit": 0,
+    "hostRules": [
+      {
+        "matchHost": "chartmuseum.k8s-app.fredcorp.com",
+        "username": "${HELM_USERNAME}",
+        "password": "${HELM_PASSWORD}",
+        "insecureRegistry": true
+      }
+    ]
+  }
