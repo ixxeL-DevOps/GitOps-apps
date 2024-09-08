@@ -1,6 +1,6 @@
 dependencies:
 - name: demo-web
   repository: https://chartmuseum.k8s-app.fredcorp.com
-  version: 0.1.10
-digest: sha256:dd8eb8be05c8b219e8b6eae91a47aab9d48d5f2e39caec43201d2867b71b1b8e
-generated: "2024-09-08T19:25:01.026572855Z"
+  version: 0.1.12
+digest: sha256:b5848c8d503103b4c9c6857e940e6ee68bd1bebcfc929435636b76e78ec26296
+generated: "2024-09-08T21:15:46.451220288Z"
