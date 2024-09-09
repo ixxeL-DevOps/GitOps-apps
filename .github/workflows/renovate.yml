@@ -20,8 +20,8 @@ jobs:
         with:
           configurationFile: renovate.json
           token: ${{ secrets.SUPER_ADMIN_TOKEN }}
-          docker-volumes: |
-            ${{ github.workspace }}/.npmrc:/github-action/.npmrc
+        #   docker-volumes: |
+        #     ${{ github.workspace }}/.npmrc:/github-action/.npmrc
           env-regex: "^(?:RENOVATE_\\w+|LOG_LEVEL|GITHUB_COM_TOKEN|NODE_OPTIONS|NODE_TLS_REJECT_UNAUTHORIZED|NPM_CONFIG_USERCONFIG)$"
         env:
           LOG_LEVEL: 'debug'
@@ -30,4 +30,4 @@ jobs:
           HELM_USERNAME: 'root'
           HELM_PASSWORD: ${{ secrets.CHARTMUSEUM_PASSWORD }}
           NODE_TLS_REJECT_UNAUTHORIZED: '0'
-          NPM_CONFIG_USERCONFIG: /github-action/.npmrc
+        #   NPM_CONFIG_USERCONFIG: /github-action/.npmrc

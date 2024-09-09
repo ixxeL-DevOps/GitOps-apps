@@ -26,8 +26,8 @@
       }
     ],
     "ignoreDeps": [],
-    "separateMajorMinor": true,
-    "separateMinorPatch": true,
+    "separateMajorMinor": false,
+    "separateMinorPatch": false,
     "prHourlyLimit": 0,
     "prConcurrentLimit": 0,
     "branchConcurrentLimit": 0,
