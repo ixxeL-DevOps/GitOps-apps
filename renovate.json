@@ -7,6 +7,7 @@
       {
         "description": "Automerge for vk-dev and vk-uat",
         "enabled": true,
+        "matchManagers": ["helmv3"],
         "matchFileNames": [
             "envs/vk-dev/**",
             "envs/vk-uat/**"
@@ -19,13 +20,19 @@
       {
         "description": "Manual merge for prod",
         "enabled": true,
+        "matchManagers": ["helmv3"],
         "matchFileNames": [
-            "envs/talos/**"
+          "envs/talos/**"
         ],
         "automerge": false
       }
     ],
-    "ignoreDeps": [],
+    "helmv3": {
+      "fileMatch": [
+          "(^|/)Chart\\.ya?ml$"
+      ]
+    },
+    "enabledManagers": ["helmv3", "github-actions"],
     "separateMajorMinor": false,
     "separateMinorPatch": false,
     "prHourlyLimit": 0,
