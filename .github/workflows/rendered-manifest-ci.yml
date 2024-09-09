@@ -65,12 +65,16 @@ jobs:
             # Extract info from PR version
             CHART_NAME=$(yq e '.name' "$file")
             CHART_VERSION=$(yq e '.version' "$file")
+
+            echo "chart infos : dir -> $CHART_DIR name -> $CHART_NAME version -> $CHART_VERSION"
             
             # Process dependencies
             yq e '.dependencies[]' "$file" | while read -r dep; do
               DEP_NAME=$(echo "$dep" | yq e '.name' -)
               DEP_VERSION=$(echo "$dep" | yq e '.version' -)
               DEP_REPO=$(echo "$dep" | yq e '.repository' -)
+
+              echo "dep infos : name -> $DEP_NAME version -> $DEP_VERSION repo -> $DEP_REPO"
               
               # Add Helm repo for dependency
               helm repo add "$DEP_NAME" "$DEP_REPO"
