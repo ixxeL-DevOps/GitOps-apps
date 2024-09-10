@@ -1,0 +1,154 @@
+---
+name: Helm Manifests Diff for ArgoCD
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  helm-diff:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # - name: Set up Helm
+      #   uses: azure/setup-helm@v3
+      #   with:
+      #     version: v3.11.1
+
+      # - name: Install yq
+      #   run: |
+      #     sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+      #     sudo chmod a+x /usr/local/bin/yq
+
+      - name: Install difftastic
+        run: |
+          wget -qO difft.tar.gz https://github.com/Wilfred/difftastic/releases/latest/download/difft-x86_64-unknown-linux-gnu.tar.gz
+          tar xzf difft.tar.gz
+          sudo mv difft /usr/local/bin/
+
+      - name: Find modified Chart.yaml files
+        id: changed-files
+        uses: tj-actions/changed-files@v37
+        with:
+          files: |
+            **/Chart.yaml
+
+      - name: Process changed Chart.yaml files
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: |
+          mkdir -p temp
+          echo "CHART_FILES=${{ steps.changed-files.outputs.all_changed_files }}" >> $GITHUB_ENV
+
+      - name: Generate diffs for each Chart
+        if: env.CHART_FILES != ''
+        run: |
+          # Function to get the latest version matching a pattern
+          get_latest_version() {
+            local repo=$1
+            local chart=$2
+            local pattern=$3
+            helm search repo $repo/$chart -o json | jq -r ".[].version" | grep "^$pattern" | sort -V | tail -n 1
+          }
+          
+          echo "CHART_FILES: ${{ env.CHART_FILES }}"
+          
+          for file in ${{ env.CHART_FILES }}; do
+            echo "Processing $file"
+            
+            # Get chart directory
+            CHART_DIR=$(dirname "$file")
+            
+            # Extract info from PR version
+            CHART_NAME=$(yq e '.name' "$file")
+            CHART_VERSION=$(yq e '.version' "$file")
+
+            echo "chart infos : dir -> $CHART_DIR name -> $CHART_NAME version -> $CHART_VERSION"
+            
+            # Process dependencies
+            yq e '.dependencies[]' "$file" | while read -r dep; do
+              DEP_NAME=$(echo "$dep" | yq e '.name' -)
+              DEP_VERSION=$(echo "$dep" | yq e '.version' -)
+              DEP_REPO=$(echo "$dep" | yq e '.repository' -)
+
+              echo "dep infos : name -> $DEP_NAME version -> $DEP_VERSION repo -> $DEP_REPO"
+              
+              # Add Helm repo for dependency
+              helm repo add "$DEP_NAME" "$DEP_REPO"
+              
+              # Handle dynamic versioning for dependency
+              if [[ $DEP_VERSION == *x* ]]; then
+                DEP_VERSION=$(get_latest_version "$DEP_NAME" "$DEP_NAME" "${DEP_VERSION/x/*}")
+                echo "Latest matching version for $DEP_NAME: $DEP_VERSION"
+                # Update Chart.yaml with resolved version
+                yq e -i ".dependencies[] |= select(.name == \"$DEP_NAME\").version = \"$DEP_VERSION\"" "$file"
+              fi
+            done
+            
+            helm repo update
+            
+            # Generate PR manifest
+            helm dependency update "$CHART_DIR"
+            helm template "$CHART_NAME" "$CHART_DIR" > "temp/pr_manifest_$CHART_NAME.yaml"
+            
+            # Get main branch version and generate manifest
+            git checkout origin/main -- "$file"
+            MAIN_CHART_VERSION=$(yq e '.version' "$file")
+            
+            # Process dependencies for main version
+            yq e '.dependencies[]' "$file" | while read -r dep; do
+              DEP_NAME=$(echo "$dep" | yq e '.name' -)
+              DEP_VERSION=$(echo "$dep" | yq e '.version' -)
+              
+              # Handle dynamic versioning for dependency
+              if [[ $DEP_VERSION == *x* ]]; then
+                DEP_VERSION=$(get_latest_version "$DEP_NAME" "$DEP_NAME" "${DEP_VERSION/x/*}")
+                echo "Latest matching version for $DEP_NAME (main): $DEP_VERSION"
+                # Update Chart.yaml with resolved version
+                yq e -i ".dependencies[] |= select(.name == \"$DEP_NAME\").version = \"$DEP_VERSION\"" "$file"
+              fi
+            done
+            
+            helm dependency update "$CHART_DIR"
+            helm template "$CHART_NAME" "$CHART_DIR" > "temp/main_manifest_$CHART_NAME.yaml"
+            
+            # Generate diff
+            difft --color always "temp/main_manifest_$CHART_NAME.yaml" "temp/pr_manifest_$CHART_NAME.yaml" > "temp/diff_$CHART_NAME.txt"
+            
+            # Reset to PR state
+            git checkout -
+          done
+
+      - name: Generate comment body
+        run: |
+          echo '### Helm Manifest Diffs' > comment_body.md
+          for diff_file in temp/diff_*.txt; do
+            chart_name=$(basename $diff_file .txt | sed 's/diff_//')
+            echo -e "\n#### $chart_name\n" >> comment_body.md
+            echo '```diff' >> comment_body.md
+            cat $diff_file >> comment_body.md
+            echo '```' >> comment_body.md
+          done
+
+      - name: Comment PR
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const fs = require('fs')
+            const commentBody = fs.readFileSync('comment_body.md', 'utf8')
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: commentBody
+            })
+
+      # - name: Upload diffs as artifacts
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: manifest-diffs
+      #     path: temp/diff_*.txt
