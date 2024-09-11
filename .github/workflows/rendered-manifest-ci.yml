@@ -1,9 +1,11 @@
 ---
-name: Helm Manifests Diff for ArgoCD
+name: Helm Manifests Diff - Rendered Manifest
 on:
   pull_request:
     branches:
       - main
+    paths:
+      - '**/Chart.yaml'
 
 jobs:
   helm-diff:
