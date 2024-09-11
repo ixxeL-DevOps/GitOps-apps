@@ -124,6 +124,18 @@ jobs:
             # Reset to PR state
             # git checkout -
           done
+      - name: test
+        run: |
+          ls -la
+          ls -la temp/
+          ls -la ${{ github.workspace }}/temp/
+
+      - name: Generate dyff on release
+        id: dyff-helm
+        uses: ixxeL-DevOps/gha-templates/.github/actions/dyff@main
+        with:
+          first-file: temp/pr_manifest_pr.yaml
+          second-file: temp/main_manifest_main.yaml
 
       - name: Generate dyff on release
         id: dyff-helm
