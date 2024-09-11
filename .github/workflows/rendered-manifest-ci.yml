@@ -62,22 +62,15 @@ jobs:
             CHART_VERSION=$(yq e '.version' "$file")
 
             echo "chart infos : dir -> $CHART_DIR name -> $CHART_NAME version -> $CHART_VERSION"
-            
-            # Process dependencies
-            yq eval '.dependencies[] | {"name": .name, "version": .version, "repository": .repository}' "$file" | while IFS= read -r line; do
-              # Vérifier si c'est une ligne contenant une clé
 
-              if [[ $line == *"name:"* ]]; then
-                DEP_NAME=$(echo "$line" | cut -d':' -f2 | xargs)
-              elif [[ $line == *"version:"* ]]; then
-                DEP_VERSION=$(echo "$line" | cut -d':' -f2 | xargs)
-              elif [[ $line == *"repository:"* ]]; then
-                DEP_REPO=$(echo "$line" | cut -d':' -f2 | xargs)
 
-              echo "dep infos : name -> $DEP_NAME version -> $DEP_VERSION repo -> $DEP_REPO"
+            for dep in $(yq e -o=j -I=0 '.dependencies[]' "$file")
+            do
+              echo "$dep" | jq -C
+              DEP_NAME=$(echo "$dep" | jq -r '.name')
+              DEP_VERSION=$(echo "$dep" | jq -r '.version')
+              DEP_REPO=$(echo "$dep" | jq -r '.repository')
               helm repo add "$DEP_NAME" "$DEP_REPO"
-
-              fi
             done
 
             helm repo update
