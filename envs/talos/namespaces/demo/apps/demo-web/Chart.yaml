@@ -3,5 +3,10 @@ name: demo-web
 version: 1.0.0
 dependencies:
 - name: demo-web
+<<<<<<< renovate/talos/demo/demo-web/demo-web-0.x
   version: '0.1.14'
   repository: https://chartmuseum.k8s-app.fredcorp.com
+=======
+  version: '0.1.10'
+  repository: https://chartmuseum.k8s-app.fredcorp.com
+>>>>>>> main

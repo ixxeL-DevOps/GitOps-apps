@@ -32,19 +32,23 @@ jobs:
 
       - name: Find modified Chart.yaml files
         id: changed-files
-        uses: tj-actions/changed-files@v37
+        uses: tj-actions/changed-files@v45
         with:
           files: |
             **/Chart.yaml
 
+<<<<<<< renovate/talos/demo/demo-web/demo-web-0.x
       - name: Process changed Chart.yaml files
         if: steps.changed-files.outputs.any_changed == 'true'
         run: |
           mkdir -p temp
           echo "CHART_FILES=${{ steps.changed-files.outputs.all_changed_files }}" >> $GITHUB_ENV
 
+=======
+>>>>>>> main
       - name: Generate diffs for each Chart
-        if: env.CHART_FILES != ''
+        env:
+          ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
         run: |
           # Function to get the latest version matching a pattern
           get_latest_version() {
@@ -53,10 +57,16 @@ jobs:
             local pattern=$3
             helm search repo $repo/$chart -o json | jq -r ".[].version" | grep "^$pattern" | sort -V | tail -n 1
           }
+          mkdir -p temp
+          echo "CHART_FILES=${ALL_CHANGED_FILES}"
           
+<<<<<<< renovate/talos/demo/demo-web/demo-web-0.x
           echo "CHART_FILES: ${{ env.CHART_FILES }}"
           
           for file in ${{ env.CHART_FILES }}; do
+=======
+          for file in ${ALL_CHANGED_FILES}; do
+>>>>>>> main
             echo "Processing $file"
             
             # Get chart directory
@@ -69,6 +79,7 @@ jobs:
             echo "chart infos : dir -> $CHART_DIR name -> $CHART_NAME version -> $CHART_VERSION"
             
             # Process dependencies
+<<<<<<< renovate/talos/demo/demo-web/demo-web-0.x
             yq e '.dependencies[]' "$file" | while read -r dep; do
               DEP_NAME=$(echo "$dep" | yq e '.name' -)
               DEP_VERSION=$(echo "$dep" | yq e '.version' -)
@@ -85,11 +96,25 @@ jobs:
                 echo "Latest matching version for $DEP_NAME: $DEP_VERSION"
                 # Update Chart.yaml with resolved version
                 yq e -i ".dependencies[] |= select(.name == \"$DEP_NAME\").version = \"$DEP_VERSION\"" "$file"
+=======
+            yq eval '.dependencies[] | {"name": .name, "version": .version, "repository": .repository}' "$file" | while IFS= read -r line; do
+              # Vérifier si c'est une ligne contenant une clé
+
+              if [[ $line == *"name:"* ]]; then
+                DEP_NAME=$(echo "$line" | cut -d':' -f2 | xargs)
+              elif [[ $line == *"version:"* ]]; then
+                DEP_VERSION=$(echo "$line" | cut -d':' -f2 | xargs)
+              elif [[ $line == *"repository:"* ]]; then
+                DEP_REPO=$(echo "$line" | cut -d':' -f2 | xargs)
+
+              echo "dep infos : name -> $DEP_NAME version -> $DEP_VERSION repo -> $DEP_REPO"
+              helm repo add "$DEP_NAME" "$DEP_REPO"
+
+>>>>>>> main
               fi
             done
-            
+
             helm repo update
-            
             # Generate PR manifest
             helm dependency update "$CHART_DIR"
             helm template "$CHART_NAME" "$CHART_DIR" > "temp/pr_manifest_$CHART_NAME.yaml"
