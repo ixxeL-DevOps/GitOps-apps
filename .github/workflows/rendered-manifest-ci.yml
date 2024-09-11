@@ -64,7 +64,7 @@ jobs:
             
             git checkout origin/main -- "$file"
             MAIN_CHART_VERSION=$(yq e '.version' "$file")
-            
+          
             for dep in $(yq e -o=j -I=0 '.dependencies[]' "$file")
             do
               echo "$dep" | jq -C
