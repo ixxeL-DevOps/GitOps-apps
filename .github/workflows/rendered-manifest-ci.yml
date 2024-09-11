@@ -114,7 +114,7 @@ jobs:
 
               CLEANED_RESULT=$(echo "${RESULT}" | sed -r "s/\x1B\[[0-9;]+[mGKFHmsu]//g")
               RESULTS+="${CLEANED_RESULT}"
-              RESULTS+=""
+              RESULTS+="\n\n"
             else
               echo "Target file not found: $target_file"
             fi
