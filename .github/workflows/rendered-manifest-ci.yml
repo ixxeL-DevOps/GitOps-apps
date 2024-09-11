@@ -90,15 +90,16 @@ jobs:
           ls -la source
           ls -la target
 
-          for source_file in source/*_manifest_pr.yaml; do
+          for source_file in source/*_manifest_main.yaml
+          do
 
             echo "found $source_file"
 
-            chart_name=$(basename "$source_file" _manifest_pr.yaml)
+            chart_name=$(basename "$source_file" _manifest_main.yaml)
 
             echo "chart name $chart_name"
 
-            target_file="target/${chart_name}_manifest_main.yaml"
+            target_file="target/${chart_name}_manifest_pr.yaml"
 
             echo "target file $target_file"
 
