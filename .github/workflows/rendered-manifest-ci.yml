@@ -115,33 +115,25 @@ jobs:
           first-file: temp/pr_manifest_pr.yaml
           second-file: temp/main_manifest_main.yaml
 
-      - name: Generate comment body
-        run: |
-          echo '### Helm Manifest Diffs' > comment_body.md
-          for diff_file in temp/diff_*.txt; do
-            chart_name=$(basename $diff_file .txt | sed 's/diff_//')
-            echo -e "\n#### $chart_name\n" >> comment_body.md
-            echo '```diff' >> comment_body.md
-            cat $diff_file >> comment_body.md
-            echo '```' >> comment_body.md
-          done
-
-      - name: Comment PR
-        uses: actions/github-script@v6
+      - name: Comment on PR for helm dyff
+        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request'
+        env:
+          DYFF_RESULTS: ${{ steps.dyff-helm.outputs.DYFF_RESULT }}
         with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const fs = require('fs')
-            const commentBody = fs.readFileSync('comment_body.md', 'utf8')
+            const output = `
+            #### Dyff helm: \`chart helm dyff\`
+            \`\`\`
+            ${process.env.DYFF_RESULTS}
+            \`\`\`
+            `;
+
             github.rest.issues.createComment({
-              issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: commentBody
+              issue_number: context.issue.number,
+              body: output
             })
 
-      # - name: Upload diffs as artifacts
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: manifest-diffs
-      #     path: temp/diff_*.txt
