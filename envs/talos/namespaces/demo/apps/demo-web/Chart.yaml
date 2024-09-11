@@ -5,3 +5,4 @@ dependencies:
 - name: demo-web
   version: '0.1.14'
   repository: https://chartmuseum.k8s-app.fredcorp.com
+

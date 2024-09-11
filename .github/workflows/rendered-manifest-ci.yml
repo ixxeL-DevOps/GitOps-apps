@@ -38,7 +38,7 @@ jobs:
           then
             echo -e "${CYAN}[ INFO ] > Dyff already installed${BLANK}"
           else
-            VERSION="v1.9.0"
+            VERSION="1.9.0"
             echo -e "${YELLOW}[ EXECUTING ] > Installing Dyff $VERSION${BLANK}"
             wget -q https://github.com/homeport/dyff/releases/download/v${VERSION}/dyff_${VERSION}_linux_amd64.tar.gz
             tar -xzvf dyff_${VERSION}_linux_amd64.tar.gz
