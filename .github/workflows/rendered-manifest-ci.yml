@@ -22,16 +22,10 @@ jobs:
             **/Chart.yaml
 
       - name: Generate diffs for each Chart
+        id: gen-pr-chart
         env:
           ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
         run: |
-          # Function to get the latest version matching a pattern
-          get_latest_version() {
-            local repo=$1
-            local chart=$2
-            local pattern=$3
-            helm search repo $repo/$chart -o json | jq -r ".[].version" | grep "^$pattern" | sort -V | tail -n 1
-          }
           mkdir -p target
           mkdir -p source
           echo "CHART_FILES=${ALL_CHANGED_FILES}"
@@ -39,12 +33,10 @@ jobs:
           for file in ${ALL_CHANGED_FILES}; do
             echo "Processing $file"
             
-            # Get chart directory
             CHART_DIR=$(dirname "$file")
             ENV=$(echo "$CHART_DIR" | awk -F'/' '{print $2}')
             NS=$(echo "$CHART_DIR" | awk -F'/' '{print $4}')
 
-            # Extract info from PR version
             CHART_NAME=$(yq e '.name' "$file")
             CHART_VERSION=$(yq e '.version' "$file")
 
@@ -58,18 +50,14 @@ jobs:
               DEP_REPO=$(echo "$dep" | jq -r '.repository')
               helm repo add "$DEP_NAME" "$DEP_REPO"
             done
-
             helm repo update
-            # Generate PR manifest
             helm dependency update "$CHART_DIR"
             helm template "$CHART_NAME" "$CHART_DIR" > "target/${ENV}_${NS}_${CHART_NAME}_manifest_pr.yaml"
             yq e -C target/${ENV}_${NS}_${CHART_NAME}_manifest_pr.yaml
             
-            # Get main branch version and generate manifest
             git checkout origin/main -- "$file"
             MAIN_CHART_VERSION=$(yq e '.version' "$file")
-            
-            # Process dependencies for main version
+
             for dep in $(yq e -o=j -I=0 '.dependencies[]' "$file")
             do
               echo "$dep" | jq -C
