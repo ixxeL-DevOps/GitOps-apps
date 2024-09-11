@@ -127,7 +127,7 @@ jobs:
 
       - name: Generate dyff on release
         id: dyff-helm
-        uses: dktunited/whbox-cicd-templates/.github/actions/dyff@main
+        uses: ixxeL-DevOps/gha-templates/.github/actions/dyff@main
         with:
           first-file: temp/main_manifest_pr.yaml
           second-file: temp/main_manifest_main.yaml
