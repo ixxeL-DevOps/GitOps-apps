@@ -59,9 +59,9 @@ jobs:
             helm repo update
             # Generate PR manifest
             helm dependency update "$CHART_DIR"
-            helm template "$CHART_NAME" "$CHART_DIR" > "temp/$CHART_NAME_manifest_pr.yaml"
-            yq e -C temp/$CHART_NAME_manifest_pr.yaml
-            
+            helm template "$CHART_NAME" "$CHART_DIR" > "target/$CHART_NAME_manifest_pr.yaml"
+            yq e -C target/$CHART_NAME_manifest_pr.yaml
+
             # Get main branch version and generate manifest
             git checkout origin/main -- "$file"
             MAIN_CHART_VERSION=$(yq e '.version' "$file")
@@ -77,16 +77,44 @@ jobs:
             done
             
             helm dependency update "$CHART_DIR"
-            helm template "$CHART_NAME" "$CHART_DIR" > "temp/$CHART_NAME_manifest_main.yaml"
-            yq e -C temp/$CHART_NAME_manifest_main.yaml
+            helm template "$CHART_NAME" "$CHART_DIR" > "source/$CHART_NAME_manifest_main.yaml"
+            yq e -C source/$CHART_NAME_manifest_main.yaml
           done
 
       - name: Generate dyff on release
         id: dyff-helm
-        uses: ixxeL-DevOps/gha-templates/.github/actions/dyff@main
-        with:
-          first-file: temp/pr_manifest_pr.yaml
-          second-file: temp/main_manifest_main.yaml
+        run: |
+          curl --silent --location https://git.io/JYfAY | sudo bash
+          RESULTS=""
+
+          for source_file in source/*_manifest_pr.yaml; do
+
+            chart_name=$(basename "$source_file" _manifest_pr.yaml)
+
+            target_file="target/${chart_name}_manifest_main.yaml"
+
+            if [ -f "$target_file" ]; then
+              RESULT=$(dyff between --color on \
+                                    --output human \
+                                    --truecolor on \
+                                    "$source_file" "$target_file")
+              echo "${RESULT}"
+
+              CLEANED_RESULT=$(echo "${RESULT}" | sed -r "s/\x1B\[[0-9;]+[mGKFHmsu]//g")
+              RESULTS+="${CLEANED_RESULT}\n"
+            else
+              echo "Target file not found: $target_file"
+            fi
+          done
+
+          echo -e "DYFF_RESULT<>${RESULTS}" >> $GITHUB_OUTPUT
+
+      # - name: Generate dyff on release
+      #   id: dyff-helm
+      #   uses: ixxeL-DevOps/gha-templates/.github/actions/dyff@main
+      #   with:
+      #     first-file: temp/pr_manifest_pr.yaml
+      #     second-file: temp/main_manifest_main.yaml
 
       - name: Comment on PR for helm dyff
         uses: actions/github-script@v7
@@ -102,10 +130,9 @@ jobs:
             ${process.env.DYFF_RESULTS}
             \`\`\`
             `;
-            
+
             github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
               body: output
-            })
