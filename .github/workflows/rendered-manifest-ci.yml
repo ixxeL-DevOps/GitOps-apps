@@ -100,8 +100,8 @@ jobs:
             helm repo update
             # Generate PR manifest
             helm dependency update "$CHART_DIR"
-            helm template "$CHART_NAME" "$CHART_DIR" > "temp/pr_manifest_$CHART_NAME.yaml"
-            yq e -C temp/pr_manifest_$CHART_NAME.yaml
+            helm template "$CHART_NAME" "$CHART_DIR" > "temp/pr_manifest_pr.yaml"
+            yq e -C temp/pr_manifest_pr.yaml
             
             # Get main branch version and generate manifest
             git checkout origin/main -- "$file"
@@ -118,27 +118,19 @@ jobs:
             done
             
             helm dependency update "$CHART_DIR"
-            helm template "$CHART_NAME" "$CHART_DIR" > "temp/main_manifest_$CHART_NAME.yaml"
-            yq e -C temp/main_manifest_$CHART_NAME.yaml
-            
-
-            echo -e "${BLUE}[ STEP - DYFF ] > Diffing files with Dyff${BLANK}"
-            RESULT=$(dyff between --color on \
-                         --output human \
-                         --truecolor on \
-                         --exclude-regexp "spec.template.metadata.annotations.checksum" \
-                         temp/pr_manifest_$CHART_NAME.yaml temp/main_manifest_$CHART_NAME.yaml)
-            echo "${RESULT}"
-            CLEANED_RESULT=$(echo "${RESULT}" | sed -r "s/\x1B\[[0-9;]+[mGKFHmsu]//g")
-            {
-              echo 'DYFF_RESULT<<EOF'
-              echo "${CLEANED_RESULT}"
-              echo EOF
-            } >> $GITHUB_OUTPUT
+            helm template "$CHART_NAME" "$CHART_DIR" > "temp/main_manifest_main.yaml"
+            yq e -C temp/main_manifest_main.yaml
 
             # Reset to PR state
             git checkout -
           done
+
+      - name: Generate dyff on release
+        id: dyff-helm
+        uses: dktunited/whbox-cicd-templates/.github/actions/dyff@main
+        with:
+          first-file: temp/main_manifest_pr.yaml
+          second-file: temp/main_manifest_main.yaml
 
       - name: Generate comment body
         run: |
