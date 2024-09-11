@@ -125,7 +125,7 @@ jobs:
           script: |
             const output = `
             #### Dyff helm: \`chart helm dyff\`
-            \`\`\`
+            \`\`\`py
             ${process.env.DYFF_RESULTS}
             \`\`\`
             `;
@@ -136,4 +136,3 @@ jobs:
               issue_number: context.issue.number,
               body: output
             })
-
