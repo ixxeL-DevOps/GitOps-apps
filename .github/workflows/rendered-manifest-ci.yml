@@ -1,14 +1,18 @@
 ---
-name: Helm Manifests Diff - Rendered Manifest
+name: Helm Manifests Diff - Rendered Manifest (Chart.yaml)
 on:
   pull_request:
+    types:
+      - opened
+      - synchronize
     branches:
       - main
     paths:
       - '**/Chart.yaml'
+      - '**/Chart.yml'
 
 jobs:
-  helm-diff:
+  helm-diff-chart:
     runs-on: self-hosted
     steps:
       - name: Checkout PR
@@ -22,6 +26,7 @@ jobs:
         with:
           files: |
             **/Chart.yaml
+            **/Chart.yml
 
       - name: Generate diffs for each Chart
         id: gen-pr-chart
@@ -59,7 +64,7 @@ jobs:
             
             git checkout origin/main -- "$file"
             MAIN_CHART_VERSION=$(yq e '.version' "$file")
-
+          
             for dep in $(yq e -o=j -I=0 '.dependencies[]' "$file")
             do
               echo "$dep" | jq -C

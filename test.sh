@@ -1,22 +1,9 @@
 #!/bin/bash
 
-search=".github/workflows/*.yaml"
+file="helmrelease.yaml"
+CHART_NAME=$(yq e 'select(document_index == 1).spec.chart.spec.chart' $file)
+CHART_VERSION=$(yq e 'select(document_index == 1).spec.chart.spec.version' $file)
+REPO_NAME=$(yq e 'select(document_index == 1).spec.chart.spec.sourceRef.name' $file)
+REPO_URL=$(yq e 'select(document_index == 0).spec.url' $file)
 
-if [ -f $search ]
-then
-  echo "search is a file"
-elif [ -d $search ]
-then
-  echo "search is a dir"
-fi
-
-for source_file in $search
-do
-  if [ -d $source_file ]
-  then
-    echo "its a dir"
-  else
-    echo "not a dir"
-  fi
-done
-
+echo "$CHART_NAME $CHART_VERSION $REPO_NAME $REPO_URL"
