@@ -63,6 +63,7 @@ jobs:
             helm template "$CHART_NAME" "$CHART_DIR" > "target/${CHART_NAME}_manifest_pr.yaml"
             yq e -C target/${CHART_NAME}_manifest_pr.yaml
 
+
             # Get main branch version and generate manifest
             git checkout origin/main -- "$file"
             MAIN_CHART_VERSION=$(yq e '.version' "$file")
@@ -111,13 +112,18 @@ jobs:
               echo "${RESULT}"
 
               CLEANED_RESULT=$(echo "${RESULT}" | sed -r "s/\x1B\[[0-9;]+[mGKFHmsu]//g")
-              RESULTS+="${CLEANED_RESULT}\n"
+              RESULTS+="${CLEANED_RESULT}"
+              RESULTS+=""
             else
               echo "Target file not found: $target_file"
             fi
           done
 
-          echo -e "DYFF_RESULT<>${RESULTS}" >> $GITHUB_OUTPUT
+          {
+            echo 'DYFF_RESULT<<EOF'
+            echo "${RESULTS}"
+            echo EOF
+          } >> $GITHUB_OUTPUT
 
       # - name: Generate dyff on release
       #   id: dyff-helm
