@@ -14,30 +14,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install dyff
-        run: |
-          set +e
-          dyff version
-          if [[ $? = 0 ]]
-          then
-            echo -e "${CYAN}[ INFO ] > Dyff already installed${BLANK}"
-          else
-            VERSION="1.9.0"
-            echo -e "${YELLOW}[ EXECUTING ] > Installing Dyff $VERSION${BLANK}"
-            wget -q https://github.com/homeport/dyff/releases/download/v${VERSION}/dyff_${VERSION}_linux_amd64.tar.gz
-            tar -xzvf dyff_${VERSION}_linux_amd64.tar.gz
-            sudo mv dyff /usr/local/bin
-          fi
-        shell: bash
-        env:
-          RED: \033[1;31m
-          GREEN: \033[1;32m
-          YELLOW: \033[1;33m
-          BLUE: \033[1;34m
-          PURPLE: \033[1;35m
-          CYAN: \033[1;36m
-          BLANK: \033[0m
-
       - name: Find modified Chart.yaml files
         id: changed-files
         uses: tj-actions/changed-files@v45
@@ -83,8 +59,8 @@ jobs:
             helm repo update
             # Generate PR manifest
             helm dependency update "$CHART_DIR"
-            helm template "$CHART_NAME" "$CHART_DIR" > "temp/pr_manifest_pr.yaml"
-            yq e -C temp/pr_manifest_pr.yaml
+            helm template "$CHART_NAME" "$CHART_DIR" > "temp/${CHART_NAME}_pr_manifest.yaml"
+            yq e -C "temp/${CHART_NAME}_pr_manifest.yaml"
             
             # Get main branch version and generate manifest
             git checkout origin/main -- "$file"
@@ -101,38 +77,75 @@ jobs:
             done
             
             helm dependency update "$CHART_DIR"
-            helm template "$CHART_NAME" "$CHART_DIR" > "temp/main_manifest_main.yaml"
-            yq e -C temp/main_manifest_main.yaml
+            helm template "$CHART_NAME" "$CHART_DIR" > "temp/${CHART_NAME}_main_manifest.yaml"
+            yq e -C "temp/${CHART_NAME}_main_manifest.yaml"
 
-            # Reset to PR state
-            # git checkout -
+            RESULT=$(dyff between --color on \
+            --output human \
+            --truecolor on \
+            "temp/${CHART_NAME}_main_manifest.yaml" "temp/${CHART_NAME}_pr_manifest.yaml")
+            echo "${RESULT}"
+            CLEANED_RESULT=$(echo "${RESULT}" | sed -r "s/\x1B\[[0-9;]+[mGKFHmsu]//g")
+
+            echo "${CLEANED_RESULT}" > temp/${CHART_NAME}_dyff.txt
+            echo "$CHART_NAME" >> temp/changed_charts.txt
           done
 
-      - name: Generate dyff on release
-        id: dyff-helm
-        uses: ixxeL-DevOps/gha-templates/.github/actions/dyff@main
-        with:
-          first-file: temp/pr_manifest_pr.yaml
-          second-file: temp/main_manifest_main.yaml
-
-      - name: Comment on PR for helm dyff
+      - name: Generate PR comment
+        id: generate-comment
+        run: |
+          comment_body="#### Helm Chart Diffs\n\n"
+          while IFS= read -r chart
+          do
+            comment_body+="### $chart\n\n\`\`\`diff\n"
+            comment_body+="$(cat temp/${chart}_dyff.txt)"
+            comment_body+="\n\`\`\`\n\n"
+          done < temp/changed_charts.txt
+          echo "comment_body<<EOF" >> $GITHUB_OUTPUT
+          echo "$comment_body" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+  
+      - name: Comment on PR
         uses: actions/github-script@v7
         if: github.event_name == 'pull_request'
         env:
-          DYFF_RESULTS: ${{ steps.dyff-helm.outputs.DYFF_RESULT }}
+          COMMENT_BODY: ${{ steps.generate-comment.outputs.comment_body }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const output = `
-            #### Dyff helm: \`chart helm dyff\`
-            \`\`\`py
-            ${process.env.DYFF_RESULTS}
-            \`\`\`
-            `;
-
             github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
-              body: output
+              body: process.env.COMMENT_BODY
             })
+
+      # - name: Generate dyff on release
+      #   id: dyff-helm
+      #   uses: ixxeL-DevOps/gha-templates/.github/actions/dyff@main
+      #   with:
+      #     first-file: temp/pr_manifest_pr.yaml
+      #     second-file: temp/main_manifest_main.yaml
+
+      # - name: Comment on PR for helm dyff
+      #   uses: actions/github-script@v7
+      #   if: github.event_name == 'pull_request'
+      #   env:
+      #     DYFF_RESULTS: ${{ steps.dyff-helm.outputs.DYFF_RESULT }}
+      #   with:
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+      #     script: |
+      #       const output = `
+      #       #### Dyff helm: \`chart helm dyff\`
+      #       \`\`\`py
+      #       ${process.env.DYFF_RESULTS}
+      #       \`\`\`
+      #       `;
+
+      #       github.rest.issues.createComment({
+      #         owner: context.repo.owner,
+      #         repo: context.repo.repo,
+      #         issue_number: context.issue.number,
+      #         body: output
+      #       })
+
