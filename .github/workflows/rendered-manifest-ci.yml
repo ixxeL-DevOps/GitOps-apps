@@ -60,10 +60,9 @@ jobs:
             helm repo update
             # Generate PR manifest
             helm dependency update "$CHART_DIR"
-            helm template "$CHART_NAME" "$CHART_DIR" > "target/${CHART_NAME}_manifest_pr.yaml"
-            yq e -C target/${CHART_NAME}_manifest_pr.yaml
-
-
+            helm template "$CHART_NAME" "$CHART_DIR" > "target/${CHART_DIR}_${CHART_NAME}_manifest_pr.yaml"
+            yq e -C target/${CHART_DIR}_${CHART_NAME}_manifest_pr.yaml
+            
             # Get main branch version and generate manifest
             git checkout origin/main -- "$file"
             MAIN_CHART_VERSION=$(yq e '.version' "$file")
@@ -79,8 +78,8 @@ jobs:
             done
             
             helm dependency update "$CHART_DIR"
-            helm template "$CHART_NAME" "$CHART_DIR" > "source/${CHART_NAME}_manifest_main.yaml"
-            yq e -C source/${CHART_NAME}_manifest_main.yaml
+            helm template "$CHART_NAME" "$CHART_DIR" > "source/${CHART_DIR}_${CHART_NAME}_manifest_main.yaml"
+            yq e -C source/${CHART_DIR}_${CHART_NAME}_manifest_main.yaml
           done
 
       - name: Generate dyff on release
