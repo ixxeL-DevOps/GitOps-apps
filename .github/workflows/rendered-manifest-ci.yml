@@ -32,7 +32,9 @@ jobs:
             local pattern=$3
             helm search repo $repo/$chart -o json | jq -r ".[].version" | grep "^$pattern" | sort -V | tail -n 1
           }
-          mkdir -p temp
+          mkdir -p target
+          mkdir -p source
+
           echo "CHART_FILES=${ALL_CHANGED_FILES}"
           
           for file in ${ALL_CHANGED_FILES}; do
