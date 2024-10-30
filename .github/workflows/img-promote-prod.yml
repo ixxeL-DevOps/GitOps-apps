@@ -6,6 +6,9 @@ on:
     branches:
     - 'auto/**'
 
+permissions:
+  pull-requests: write
+
 jobs:
   auto-pull-request:
     name: Promote image to prod
