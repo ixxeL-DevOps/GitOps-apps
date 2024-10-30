@@ -6,6 +6,9 @@ on:
     branches:
     - 'auto/**'
 
+permissions:
+  pull-requests: write
+
 jobs:
   auto-pull-request:
     name: Promote image to prod
@@ -20,11 +23,12 @@ jobs:
         echo -e "${CYAN}[ INFO ] > gh version.${BLANK}"
         gh --version
 
-        gh_pr_up() { gh pr create "$@" || gh pr edit "$@" }
+        gh_pr_up() {
+          gh pr create "$@" || gh pr edit "$@" 
+        }
 
         gh_pr_up --title "chore: image promotion ${{ github.ref }} into main" \
                  --body ":crown: *An automated PR* - ${{ github.ref }}" \
-                 --label "image-updater" \
                  --base "main"
       env:
         GH_TOKEN: ${{ secrets.SUPER_ADMIN_TOKEN }}
