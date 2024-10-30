@@ -3,4 +3,4 @@ dependencies:
   repository: https://chartmuseum.k8s-app.fredcorp.com
   version: 0.1.15
 digest: sha256:1308f00500dd4a88f8c35952931cc58ee8d2d725cd0ee08de62dc744ab1ff545
-generated: "2024-10-30T10:37:19.625421284Z"
+generated: "2024-10-30T11:32:41.079635241Z"
