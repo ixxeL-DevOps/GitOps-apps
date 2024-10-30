@@ -20,7 +20,8 @@ jobs:
         echo -e "${CYAN}[ INFO ] > gh version.${BLANK}"
         gh --version
 
-        gh_pr_up() { gh pr create $* || gh pr edit $* }
+        gh_pr_up() { gh pr create "$@" || gh pr edit "$@" }
+
         gh_pr_up --title "chore: image promotion ${{ github.ref }} into main" \
                  --body ":crown: *An automated PR* - ${{ github.ref }}" \
                  --label "image-updater" \
