@@ -1,51 +1,57 @@
 {
-    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-    "extends": [
-      "config:base"
-    ],
-    "packageRules": [
-      {
-        "description": "Automerge for vk-dev and vk-uat",
-        "enabled": true,
-        "matchManagers": ["helmv3"],
-        "matchFileNames": [
-            "envs/vk-dev/**",
-            "envs/vk-uat/**"
-        ],
-        "automerge": true,
-        "automergeType": "pr",
-        "platformAutomerge": true,
-        "requiredStatusChecks": null
-      },
-      {
-        "description": "Manual merge for prod",
-        "enabled": true,
-        "matchManagers": ["helmv3"],
-        "matchFileNames": [
-          "envs/talos/**"
-        ],
-        "automerge": false
-      }
-    ],
-    "helmv3": {
-      "fileMatch": [
-          "(^|/)Chart\\.ya?ml$"
-      ]
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:base"
+  ],
+  "enabledManagers": ["helmv3", "github-actions"],
+  "dependencyDashboard": true,
+  "prHourlyLimit": 60,
+  "prConcurrentLimit": 60,
+  "branchConcurrentLimit": 60,
+  "automergeStrategy": "squash",
+  "rebaseWhen": "behind-base-branch",
+  "platformAutomerge": true,
+  "separateMajorMinor": false,
+  "separateMinorPatch": false,
+  "commitMessage": "{{{commitMessagePrefix}}} {{{commitMessageAction}}} {{{commitMessageTopic}}} {{{commitMessageExtra}}} {{{commitMessageSuffix}}} for env {{{ replace '.*envs/(.+)/namespaces/(.+)/apps/(.+).*' '$1' packageFileDir}}} application name {{{ replace '.*envs/(.+)/namespaces/(.+)/apps/(.+).*' '$3' packageFileDir}}}",
+  "additionalBranchPrefix": "{{{ replace '.*envs/(.+)/namespaces/(.+)/apps/(.+).*' '$1/$2/$3' packageFileDir}}}/",
+  "helmv3": {
+    "fileMatch": [
+        "(^|/)Chart\\.ya?ml$"
+    ]
+  },
+  "packageRules": [
+    {
+      "description": "Automerge for vk-dev and vk-uat",
+      "enabled": true,
+      "matchManagers": ["helmv3"],
+      "matchFileNames": [
+          "envs/vk-dev/**",
+          "envs/vk-uat/**"
+      ],
+      "addLabels": ["AUTO-MERGE"],
+      "automerge": true,
+      "automergeType": "pr",
+      "platformAutomerge": true,
+      "requiredStatusChecks": null
     },
-    "enabledManagers": ["helmv3", "github-actions"],
-    "separateMajorMinor": false,
-    "separateMinorPatch": false,
-    "prHourlyLimit": 0,
-    "prConcurrentLimit": 0,
-    "branchConcurrentLimit": 0,
-    "hostRules": [
-      {
-        "matchHost": "chartmuseum.k8s-app.fredcorp.com",
-        "username": "${HELM_USERNAME}",
-        "password": "${HELM_PASSWORD}",
-        "insecureRegistry": true
-      }
-    ],
-    "commitMessage": "{{{commitMessagePrefix}}} {{{commitMessageAction}}} {{{commitMessageTopic}}} {{{commitMessageExtra}}} {{{commitMessageSuffix}}} for env {{{ replace '.*envs/(.+)/namespaces/(.+)/apps/(.+).*' '$1' packageFileDir}}} application name {{{ replace '.*envs/(.+)/namespaces/(.+)/apps/(.+).*' '$3' packageFileDir}}}",
-    "additionalBranchPrefix": "{{{ replace '.*envs/(.+)/namespaces/(.+)/apps/(.+).*' '$1/$2/$3' packageFileDir}}}/"
-  }
+    {
+      "description": "Manual merge for prod",
+      "enabled": true,
+      "matchManagers": ["helmv3"],
+      "matchFileNames": [
+        "envs/talos/**"
+      ],
+      "addLabels": ["MANUAL-REVIEW"],
+      "automerge": false
+    }
+  ],
+  "hostRules": [
+    {
+      "matchHost": "chartmuseum.k8s-app.fredcorp.com",
+      "username": "${HELM_USERNAME}",
+      "password": "${HELM_PASSWORD}",
+      "insecureRegistry": true
+    }
+  ]
+}
