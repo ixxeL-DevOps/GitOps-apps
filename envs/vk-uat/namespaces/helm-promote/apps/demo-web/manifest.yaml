@@ -82,40 +82,6 @@ spec:
           resources: {}
       serviceAccountName: demo-web-uat-hydrate
 ---
-apiVersion: gateway.networking.k8s.io/v1
-kind: HTTPRoute
-metadata:
-  annotations:
-    argocd.argoproj.io/tracking-id: hydrator-app:gateway.networking.k8s.io/HTTPRoute:argocd/demo-web-uat-hydrate
-  labels:
-    app.kubernetes.io/instance: hydrator-app
-    app.kubernetes.io/managed-by: Helm
-    app.kubernetes.io/name: demo-web
-    app.kubernetes.io/version: 1.16.0
-    helm.sh/chart: demo-web-0.1.19
-  name: demo-web-uat-hydrate
-  namespace: argocd
-spec:
-  hostnames:
-    - demo-web-uat-hydrate.k8s-app.gateway.fredcorp.com
-  parentRefs:
-    - group: gateway.networking.k8s.io
-      kind: Gateway
-      name: wildcard-tls-gateway
-      namespace: kube-system
-      sectionName: https
-  rules:
-    - backendRefs:
-        - group: ""
-          kind: Service
-          name: demo-web-uat-hydrate
-          port: 80
-          weight: 100
-      matches:
-        - path:
-            type: PathPrefix
-            value: /
----
 apiVersion: v1
 kind: Pod
 metadata:

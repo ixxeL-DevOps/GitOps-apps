@@ -7,6 +7,6 @@ To hydrate the manifests in this repository, run the following commands:
 
 git clone https://github.com/ixxeL-DevOps/GitOps-apps.git
 # cd into the cloned directory
-git checkout 11c9957e50bc2b51108a160dd0057f1539dde075
+git checkout bd5b1d7435261d897265cdcd8a0906482dfea3be
 helm template . --name-template hydrator-app --include-crds
 ```
