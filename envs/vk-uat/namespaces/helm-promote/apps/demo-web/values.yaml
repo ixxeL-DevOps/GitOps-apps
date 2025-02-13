@@ -7,7 +7,7 @@ demo-web:
   rollouts:
     enabled: false
   gatewayApi:
-    enabled: false
+    enabled: true
     gateway:
       name: wildcard-tls-gateway
       namespace: kube-system
