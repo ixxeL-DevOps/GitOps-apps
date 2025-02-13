@@ -1,8 +1,0 @@
-helm:
-  parameters:
-  - name: image.name
-    value: docker.io/ixxel/demo-web
-    forcestring: true
-  - name: demo-web.image.tag
-    value: v0.9.0
-    forcestring: true

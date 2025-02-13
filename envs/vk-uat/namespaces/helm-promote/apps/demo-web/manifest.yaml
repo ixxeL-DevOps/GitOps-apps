@@ -1,0 +1,106 @@
+apiVersion: v1
+automountServiceAccountToken: false
+kind: ServiceAccount
+metadata:
+  annotations:
+    argocd.argoproj.io/tracking-id: hydrator-app:/ServiceAccount:argocd/demo-web-uat-hydrate
+  labels:
+    app.kubernetes.io/instance: hydrator-app
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: demo-web
+    app.kubernetes.io/version: 1.16.0
+    helm.sh/chart: demo-web-0.1.19
+  name: demo-web-uat-hydrate
+  namespace: argocd
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    argocd.argoproj.io/tracking-id: hydrator-app:/Service:argocd/demo-web-uat-hydrate
+  labels:
+    app.kubernetes.io/instance: hydrator-app
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: demo-web
+    app.kubernetes.io/version: 1.16.0
+    helm.sh/chart: demo-web-0.1.19
+  name: demo-web-uat-hydrate
+  namespace: argocd
+spec:
+  ports:
+    - name: http
+      port: 80
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    app.kubernetes.io/instance: hydrator-app
+    app.kubernetes.io/name: demo-web
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    argocd.argoproj.io/tracking-id: hydrator-app:apps/Deployment:argocd/demo-web-uat-hydrate
+  labels:
+    app.kubernetes.io/instance: hydrator-app
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: demo-web
+    app.kubernetes.io/version: 1.16.0
+    helm.sh/chart: demo-web-0.1.19
+  name: demo-web-uat-hydrate
+  namespace: argocd
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: hydrator-app
+      app.kubernetes.io/name: demo-web
+  template:
+    metadata:
+      annotations: null
+      labels:
+        app.kubernetes.io/instance: hydrator-app
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: demo-web
+        app.kubernetes.io/part-of: demo-web
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - env:
+            - name: TEST
+              value: OK
+          envFrom: null
+          image: docker.io/ixxel/demo-web:latest
+          imagePullPolicy: Always
+          name: demo-web
+          ports:
+            - containerPort: 8080
+              name: http
+              protocol: TCP
+          resources: {}
+      serviceAccountName: demo-web-uat-hydrate
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    argocd.argoproj.io/tracking-id: hydrator-app:/Pod:/demo-web-uat-hydrate-test-connection
+    helm.sh/hook: test
+  labels:
+    app.kubernetes.io/instance: hydrator-app
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: demo-web
+    app.kubernetes.io/version: 1.16.0
+    helm.sh/chart: demo-web-0.1.19
+  name: demo-web-uat-hydrate-test-connection
+spec:
+  containers:
+    - args:
+        - demo-web-uat-hydrate:80
+      command:
+        - wget
+      image: busybox
+      name: wget
+  restartPolicy: Never

@@ -1,0 +1,7 @@
+{
+  "repoURL": "https://github.com/ixxeL-DevOps/GitOps-apps.git",
+  "drySha": "4fa19ea3eb8900a11ac04957c6760f2329d3edb7",
+  "commands": [
+    "helm template . --name-template hydrator-app --include-crds"
+  ]
+}
