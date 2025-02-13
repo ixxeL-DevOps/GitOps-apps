@@ -1,5 +1,5 @@
 demo-web:
-  fullnameOverride: 'demo-web-uat'
+  fullnameOverride: 'demo-web-uat-hydrate'
   image:
     registry: docker.io
     repository: ixxel/demo-web
