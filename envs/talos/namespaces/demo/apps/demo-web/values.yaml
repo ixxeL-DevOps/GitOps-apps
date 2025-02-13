@@ -29,6 +29,6 @@ demo-web:
   #         - path: /
   #           pathType: Prefix
   autoscaling:
-    enabled: true
+    enabled: false
   test: 
     enabled: false
