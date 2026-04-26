@@ -15,7 +15,7 @@ jobs:
     timeout-minutes: 5
     runs-on: self-hosted
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
       name: checkout
     - run: |
         echo "helm chart version : ${{ github.event.client_payload.helm_chart_version }}"
